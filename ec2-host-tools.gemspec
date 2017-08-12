@@ -17,4 +17,5 @@ Gem::Specification.new do |s|
 
   s.add_dependency 'aws-sdk', '~> 2.5'
   s.add_dependency 'aws-sdk-v1', '1.66.0'
+  s.add_dependency 'nokogiri', '1.6.6.2'
 end

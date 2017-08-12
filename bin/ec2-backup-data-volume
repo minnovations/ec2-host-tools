@@ -1,0 +1,29 @@
+#!/usr/bin/env ruby
+require 'aws-sdk-v1'
+
+volume_device = ARGV[0]
+
+ec2 = AWS::EC2.new
+instance_id = Net::HTTP.get(URI.parse('http://169.254.169.254/latest/meta-data/instance-id'))
+volume_id = ec2.instances[instance_id].attachments[volume_device].volume.id
+
+backup_time = Time.now.utc
+backup_days = (ENV['BACKUP_DAYS'] ? ENV['BACKUP_DAYS'].to_i : 14)
+backup_tag = ENV['BACKUP_TAG'] || 'backup'
+
+# Create new backup snapshot
+new_snapshot = ec2.snapshots.create(:volume_id => volume_id)
+ec2.tags.create(new_snapshot, 'Name', :value => "#{backup_tag}-#{backup_time.strftime('%Y%m%dT%H%M%S')}")
+puts "Created #{new_snapshot.id}"
+
+# Delete expired backup snapshots
+snapshot_ids = ec2.snapshots.with_owner(:self).collect { |snapshot| snapshot.id if snapshot.volume_id == volume_id }.compact
+snapshot_ids.each do |snapshot_id|
+  snapshot = ec2.snapshots[snapshot_id]
+  if (backup_time - snapshot.start_time) > backup_days*24*60*60
+    snapshot.delete
+    puts "Deleted #{snapshot_id}"
+  end
+end
+
+exit

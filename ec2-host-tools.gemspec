@@ -6,7 +6,7 @@ Gem::Specification.new do |s|
   s.email       = ['contact@minnovations.sg']
   s.homepage    = 'https://github.com/minnovations/ec2-host-tools'
   s.summary     = 'EC2 Host Tools'
-  s.description = 'EC2 Host Tools'
+  s.description = 'A collection of scripts for various operational tasks on EC2-based host servers'
 
   s.required_ruby_version = '>= 2.0.0'
 
